@@ -1,0 +1,9 @@
+﻿{
+  "secret": "DESAFIOMAPCITYRODRIGOCERDA2020",
+  "DB": {
+    "database": "postgres",
+    "username": "postgres",
+    "password": "",
+    "host": "localhost"
+  }
+}
