@@ -16,7 +16,7 @@ export class SignupComponent implements OnInit {
   returnUrl: string = '/';
   loading = false;
   error = '';
-  constructor(private map: MapService, 
+  constructor(private map: MapService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
@@ -26,6 +26,8 @@ export class SignupComponent implements OnInit {
   }
   submitUser() {
     const searchResult = JSON.parse(this.map.geocoder.lastSelected);
+    console.log(searchResult);
+    console.log(this.map.geocoder)
     const point = {
       'type': 'Feature',
       'geometry': searchResult.geometry,

@@ -21,14 +21,7 @@ export class MapComponent implements OnInit {
 		this.map.buildMap();
 		if (this.currentUser) {
 			this.map.map.on('load', () => {
-				const features = this.currentUser.points.map(p => ({
-					'type': 'Feature',
-					'geometry': p.shape,
-					'properties': {
-						'title': p.title,
-						'icon': 'rocket'
-					}
-				}))
+				const features = this.currentUser.points;
 				this.map.map.addSource('points', {
 					'type': 'geojson',
 					'data': {
