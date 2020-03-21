@@ -3,7 +3,7 @@
   "DB": {
     "database": "postgres",
     "username": "postgres",
-    "password": "",
+    "password": "A254MJIi",
     "host": "localhost"
   }
 }

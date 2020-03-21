@@ -1,6 +1,6 @@
 ﻿const config = require('config.json');
 const jwt = require('jsonwebtoken');
-var Sequelize = require('sequelize')
+const { QueryTypes, Sequelize } = require('sequelize')
 sequelize = new Sequelize(config.DB.database, config.DB.username, config.DB.password, {host: config.DB.host,  dialect: 'postgres'})
 module.exports = {
     authenticate,
@@ -39,14 +39,25 @@ const Point = sequelize.define('points', {
         type: Sequelize.INTEGER,
         primaryKey: true,
     },
-    shape: {
-        type: Sequelize.GEOMETRY('POINT', 4326),
+    geometry: {
+        type: Sequelize.GEOMETRY,
     },
     title: {
         type: Sequelize.STRING,
     }
 }, { timestamps: false })
 
+const pointsQuery = `
+  SELECT json_build_object(
+      'type',       'Feature',
+      'id',         id,
+      'geometry', ST_AsGeoJSON(shape)::json,
+      'properties', json_build_object(
+          'title', title
+       )
+   ) as point
+   FROM points ;
+`;
 
 async function authenticate({ username, password }) {
     const users = await User.findAll({
@@ -57,7 +68,8 @@ async function authenticate({ username, password }) {
       });
     console.log(users)
     if (users.length) {
-        const points = await Point.findAll();
+        const points = await sequelize.query(pointsQuery, { type: QueryTypes.SELECT }).map(x => x.point);
+        console.log(points)
         const user = users[0];
         const token = jwt.sign({ sub: user.id }, config.secret);
         return {
@@ -75,10 +87,12 @@ async function register(body) {
     console.log(body)
     const newUser = await User.create({ name: body.username , email: body.email , password: body.password  });
     let geometry = body.point.geometry;
-    geometry.crs = { type: 'name', properties: { name: 'EPSG:4326'} }
+    console.log(geometry)
     const title = body.point.properties.title;
-    const point = await Point.create({id_user: newUser.id, shape: geometry, title})
-    const points = await Point.findAll();
+    const point = await Point.create({id_user: newUser.id, geometry, title});
+    const points = await sequelize.query(pointsQuery, { type: QueryTypes.SELECT }).map(x => x.point);
+    // const points = await Point.findAll();
+    console.log(points)
     const token = jwt.sign({ sub: newUser.id }, config.secret);
     return {
         id: newUser["id"],
