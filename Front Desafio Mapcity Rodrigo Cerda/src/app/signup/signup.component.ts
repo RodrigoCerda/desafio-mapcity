@@ -9,25 +9,42 @@ import { first } from 'rxjs/operators';
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent implements OnInit {
-  nameInput: string = '';
-  emailInput: string = '';
-  passwordInput: string = '';
-  direccionInput: string ='';
   returnUrl: string = '/';
-  loading = false;
-  error = '';
-  constructor(private map: MapService,
+  loading: boolean = false;
+  error: boolean = false;
+  addressError: boolean = false;
+  registerForm: FormGroup;
+  submitted: boolean = false;
+
+  constructor(
+    private map: MapService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private auth: AuthenticationService)  { }
 
   ngOnInit() {
+     this.registerForm = this.formBuilder.group({
+         nameInput: ['', Validators.required],
+         emailInput: ['', [Validators.required, Validators.email]],
+         passwordInput: ['', [Validators.required, Validators.minLength(6)]],
+         repeatPasswordInput: ['', Validators.required],
+     }, {
+         validator: (formGroup) => (formGroup.controls['passwordInput'].value == formGroup.controls['repeatPasswordInput'].value)
+     });
   }
+  get form() { return this.registerForm.controls; }
+
   submitUser() {
+    this.submitted = true;
+    if (this.registerForm.invalid) {
+      return;
+    }
     const searchResult = JSON.parse(this.map.geocoder.lastSelected);
-    console.log(searchResult);
-    console.log(this.map.geocoder)
+    if (searchResult == null) {
+      this.addressError = true;
+      return
+    }
     const point = {
       'type': 'Feature',
       'geometry': searchResult.geometry,
@@ -36,9 +53,9 @@ export class SignupComponent implements OnInit {
       }
     }
     const signupData = {
-      name: this.nameInput,
-      email: this.emailInput,
-      password: this.passwordInput,
+      name: this.form.nameInput.value,
+      email: this.form.emailInput.value,
+      password: this.form.passwordInput.value,
       point
     }
     this.auth.register(signupData.name, signupData.password, signupData.email, point)
@@ -51,5 +68,9 @@ export class SignupComponent implements OnInit {
               this.error = error;
               this.loading = false;
           });
+  }
+  onReset() {
+    this.submitted = false;
+    this.registerForm.reset();
   }
 }

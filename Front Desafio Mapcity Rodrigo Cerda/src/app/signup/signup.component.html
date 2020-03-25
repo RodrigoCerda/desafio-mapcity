@@ -1,43 +1,46 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col">
-            <form>
-                <div class="form-group">
-                    <label for="inputNombre">Nombre</label>
-                    <input type="text" 
-                        [(ngModel)]='nameInput'
-                        class="form-control" 
-                        id="inputNombre" 
-                        name="inputNombre"
-                        aria-describedby="nameHelp" 
-                        placeholder="Nombre"/>
-                    <small id="nameHelp" class="form-text text-muted">Ingresar Nombre.</small>
-                  </div>
-                <div class="form-group">
-                  <label for="inputEmail">Email</label>
-                  <input type="email"
-                    [(ngModel)]='emailInput' 
-                    class="form-control" 
-                    id="inputEmail" 
-                    name="inputEmail" 
-                    aria-describedby="emailHelp" 
-                    placeholder="Email"/>
-                  <small id="emailHelp" class="form-text text-muted">Ingresar Email.</small>
-                </div>
-                <div class="form-group">
-                  <label for="inputPassword">Password</label>
-                  <input type="password" 
-                    [(ngModel)]='passwordInput'
-                    class="form-control" 
-                    id="inputPassword" 
-                    name="inputPassword" 
-                    placeholder="Password"/>
-                </div>
-                <div class="form-group" id="geocoder-custom">
-                    <label for="textDireccion">Dirección</label>
-                  </div>
-                <button type="submit" class="btn btn-primary" (click)="submitUser()">Submit</button>
-              </form>
+<form [formGroup]="registerForm" (ngSubmit)="submitUser()">
+    <div class="form-row">
+        <div class="form-group col-12">
+            <label>Nombre</label>
+            <input type="text" formControlName="nameInput" class="form-control" [ngClass]="{ 'is-invalid': submitted && form.nameInput.errors }" />
+            <div *ngIf="submitted && form.nameInput.errors" class="invalid-feedback">
+                <div *ngIf="form.nameInput.errors.required">Nombre requerido</div>
+            </div>
         </div>
     </div>
-</div>
+    <div class="form-row">
+      <div class="form-group col-12">
+          <label>Email</label>
+          <input type="text" formControlName="emailInput" class="form-control" [ngClass]="{ 'is-invalid': submitted && form.emailInput.errors }" />
+          <div *ngIf="submitted && form.emailInput.errors" class="invalid-feedback">
+              <div *ngIf="form.emailInput.errors.required">Email requerido</div>
+              <div *ngIf="form.emailInput.errors.email">Ingresar email válido</div>
+          </div>
+      </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col">
+            <label>Password</label>
+            <input type="password" formControlName="passwordInput" class="form-control" [ngClass]="{ 'is-invalid': submitted && form.passwordInput.errors }" />
+            <div *ngIf="submitted && form.passwordInput.errors" class="invalid-feedback">
+                <div *ngIf="form.passwordInput.errors.required">Password requerida</div>
+                <div *ngIf="form.passwordInput.errors.minlength">Password debe ser de al menos 6 caracteres</div>
+            </div>
+        </div>
+        <div class="form-group col">
+            <label>Reescribir Password</label>
+            <input type="password" formControlName="repeatPasswordInput" class="form-control" [ngClass]="{ 'is-invalid': submitted && form.repeatPasswordInput.errors }" />
+            <div *ngIf="submitted && form.repeatPasswordInput.errors" class="invalid-feedback">
+                <div *ngIf="form.repeatPasswordInput.errors.required">Reescribir password</div>
+                <div *ngIf="form.repeatPasswordInput.errors.mustMatch">Password no coincide</div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary mr-1">Registrar</button>
+        <button class="btn btn-secondary" type="reset" (click)="onReset()">Limpiar</button>
+    </div>
+    <div *ngIf="!!addressError" >
+      <p class="text-danger">Falta dirección en mapa</p>
+    </div>
+</form>

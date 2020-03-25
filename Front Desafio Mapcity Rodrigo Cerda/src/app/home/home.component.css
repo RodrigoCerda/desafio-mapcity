@@ -1,0 +1,11 @@
+#logout {
+  position: absolute;
+
+  z-index: 2
+}
+.tools-layout {
+top: 2%;
+left: 2%;
+position: absolute;
+  z-index: 2000000;
+}
