@@ -39,7 +39,7 @@ const Point = sequelize.define('points', {
         type: Sequelize.INTEGER,
         primaryKey: true,
     },
-    geometry: {
+    shape: {
         type: Sequelize.GEOMETRY,
     },
     title: {
@@ -89,10 +89,10 @@ async function register(body) {
     let geometry = body.point.geometry;
     console.log(geometry)
     const title = body.point.properties.title;
-    const point = await Point.create({id_user: newUser.id, geometry, title});
+    const point = await Point.create({id_user: newUser.id, shape:  geometry, title});
     const points = await sequelize.query(pointsQuery, { type: QueryTypes.SELECT }).map(x => x.point);
     // const points = await Point.findAll();
-    console.log(points)
+    // console.log(points)
     const token = jwt.sign({ sub: newUser.id }, config.secret);
     return {
         id: newUser["id"],
